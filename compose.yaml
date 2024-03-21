@@ -1,0 +1,37 @@
+version: '3'
+services:
+  www:
+    image: php:apache
+    volumes:
+      - "./:/var/www/html"
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    ports:
+      - 80:80
+      - 443:443
+    links:
+      - db
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: stage
+      MYSQL_USER: stage
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - "./db:/docker-entrypoint-initdb.d"
+    ports:
+      - 3306:3306
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - db
+      - www
+    ports:
+      - 8001:80
+    environment:
+      UPLOAD_LIMIT: "64M"
+      PMA_HOST: "db"
+      PMA_PORT: "3306"   
+volumes:
+  mysql_data:
